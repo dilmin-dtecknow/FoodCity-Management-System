@@ -4,6 +4,11 @@
  */
 package Gui;
 
+import static Gui.Start.logger;
+import Model.MySQL;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dell
@@ -16,6 +21,12 @@ public class RegisterCustomer extends javax.swing.JDialog {
     public RegisterCustomer(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+    }
+
+    private void reset() {
+        jTextField4.setText("");
+        jTextField6.setText("");
+        jTextField5.setText("");
     }
 
     /**
@@ -38,6 +49,8 @@ public class RegisterCustomer extends javax.swing.JDialog {
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jLabel14 = new javax.swing.JLabel();
+        jTextField6 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -77,7 +90,7 @@ public class RegisterCustomer extends javax.swing.JDialog {
         });
 
         jLabel11.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
-        jLabel11.setText("Name ");
+        jLabel11.setText("First Name ");
 
         jTextField5.setBorder(null);
         jTextField5.addActionListener(new java.awt.event.ActionListener() {
@@ -112,6 +125,16 @@ public class RegisterCustomer extends javax.swing.JDialog {
             }
         });
 
+        jLabel14.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
+        jLabel14.setText("Last Name ");
+
+        jTextField6.setBorder(null);
+        jTextField6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField6ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
         jPanel12Layout.setHorizontalGroup(
@@ -127,7 +150,9 @@ public class RegisterCustomer extends javax.swing.JDialog {
                     .addComponent(jLabel19)
                     .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14)
+                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(61, Short.MAX_VALUE))
         );
         jPanel12Layout.setVerticalGroup(
@@ -138,6 +163,10 @@ public class RegisterCustomer extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(jLabel14)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel19)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -145,7 +174,7 @@ public class RegisterCustomer extends javax.swing.JDialog {
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(jLabel13))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52))
         );
@@ -170,8 +199,45 @@ public class RegisterCustomer extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // Add new GRN
-        new AddGRN(null, true).show();
+        //new AddGRN(null, true).show();
+
+        String firstname = jTextField4.getText();
+        String lastname = jTextField6.getText();
+        String mobile = jTextField5.getText();
+
+        if (firstname.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Empty Firstname", "Warning", JOptionPane.WARNING_MESSAGE);
+
+        } else if (lastname.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Empty Last name", "Warning", JOptionPane.WARNING_MESSAGE);
+
+        } else if (mobile.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Empty Mobile", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (!mobile.matches("^07[01245678]{1}[0-9]{7}$")) {
+            JOptionPane.showMessageDialog(this, "Invalid mobile number", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            try {
+                ResultSet rs = MySQL.exequte("SELECT * FROM `customer` WHERE `mobile`='" + mobile + "'");
+
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(this, "This Custommer Allready Registered", "Warning", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    MySQL.exequte("INSERT INTO `customer` VALUES('" + mobile + "','" + firstname + "','" + lastname + "','0')");
+                    JOptionPane.showMessageDialog(this, "Custommer Registered", "Message", JOptionPane.WARNING_MESSAGE);
+                }
+                reset();
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.warning(e.toString());
+            }
+        }
+
+
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField6ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -221,6 +287,7 @@ public class RegisterCustomer extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
@@ -228,5 +295,6 @@ public class RegisterCustomer extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel12;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField jTextField6;
     // End of variables declaration//GEN-END:variables
 }

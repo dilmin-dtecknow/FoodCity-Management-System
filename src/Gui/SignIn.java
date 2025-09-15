@@ -4,17 +4,40 @@
  */
 package Gui;
 
+import Model.MySQL;
+import Model.UserBean;
+import java.sql.ResultSet;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dell
  */
 public class SignIn extends javax.swing.JFrame {
 
+    public static int uid;
+
+    public static int getUid() {
+        return uid;
+    }
+
+    public static void setUid(int aUid) {
+        uid = aUid;
+    }
+
     /**
      * Creates new form SignIn
      */
     public SignIn() {
         initComponents();
+        try {
+            //ImageIcon imageIcon = new ImageIcon("src//resources//img.png");
+            ImageIcon imageIcon = new ImageIcon(getClass().getResource("/img/img.png"));
+            this.setIconImage(imageIcon.getImage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "No Image Icon");
+        }
     }
 
     /**
@@ -124,7 +147,7 @@ public class SignIn extends javax.swing.JFrame {
         jLabel5.setText("Log In ");
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel7.setText("Sign in to your accoutn here");
+        jLabel7.setText("Sign in to your account here");
 
         jTextField1.setBorder(null);
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -136,7 +159,6 @@ public class SignIn extends javax.swing.JFrame {
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jLabel8.setText("Username ");
 
-        jPasswordField1.setText("jPasswordField1");
         jPasswordField1.setBorder(null);
         jPasswordField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -228,10 +250,66 @@ public class SignIn extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        // Sigin In
+        String username = jTextField1.getText();
+        String password = String.valueOf(jPasswordField1.getPassword());
+
+        if (username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please Enter Your User Name", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please Enter Your Password", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else {
+            try {
+                ResultSet rs = MySQL.exequte("SELECT * FROM `employee` "
+                        + "INNER JOIN `employee_type` ON `employee`.`employee_type_id`=`employee_type`.`id` "
+                        + "WHERE `username` = '" + username + "' AND `password` = '" + password + "'");
+                if (rs.next()) {
+                    int Status = rs.getInt("status_id");
+                    if (Status == 1) {
+                        //active user
+                        int id = rs.getInt("id");
+                        String fname = rs.getString("fname");
+                        String lname = rs.getString("lname");
+                        int typeid = rs.getInt("employee_type_id");
+
+                        String typeName = rs.getString("employee_type.name");
+                        String userName = rs.getString("username");
+
+                        //set data to userbean
+                        UserBean userBean = new UserBean();
+
+                        userBean.setId(id);
+                        userBean.setFname(fname);
+                        userBean.setLname(lname);
+                        userBean.setUsserName(username);
+                        userBean.setType(typeid);
+
+                        userBean.setEusername(userName);
+                        userBean.seteTypeName(typeName);
+                        
+                        setUid(userBean.getId());
+
+                        Main dashBoard = new Main();
+                        dashBoard.setVisible(true);
+                        dashBoard.setUserBean(userBean);
+                        this.dispose();
+
+                    } else {
+                        //inactive user
+                        JOptionPane.showMessageDialog(this, "You Are Suspend User!!", "Warning", JOptionPane.ERROR_MESSAGE);
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalide Details", "Warning", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed

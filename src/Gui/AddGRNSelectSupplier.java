@@ -4,11 +4,22 @@
  */
 package Gui;
 
+import Model.MySQL;
+import java.sql.ResultSet;
+import java.util.Vector;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Dell
  */
 public class AddGRNSelectSupplier extends javax.swing.JDialog {
+
+    private AddGRN grn;
+
+    public void setGRN(AddGRN grn) {
+        this.grn = grn;
+    }
 
     /**
      * Creates new form AddGRNSelectSupplier
@@ -16,7 +27,31 @@ public class AddGRNSelectSupplier extends javax.swing.JDialog {
     public AddGRNSelectSupplier(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-       
+        loadSupplierTable();
+
+    }
+
+    public void loadSupplierTable() {
+        try {
+            ResultSet resaultset = MySQL.exequte("SELECT * FROM `supplier`");
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+
+            while (resaultset.next()) {
+                Vector rowData = new Vector();
+                rowData.add(resaultset.getString("id"));
+                rowData.add(resaultset.getString("fname"));
+                rowData.add(resaultset.getString("lname"));
+                rowData.add(resaultset.getString("email"));
+                rowData.add(resaultset.getString("address"));
+                rowData.add(resaultset.getString("mobile"));
+
+                model.addRow(rowData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -70,6 +105,11 @@ public class AddGRNSelectSupplier extends javax.swing.JDialog {
         );
 
         jTextField7.setBorder(null);
+        jTextField7.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField7KeyReleased(evt);
+            }
+        });
 
         jButton1.setBackground(new java.awt.Color(16, 47, 129));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -113,18 +153,52 @@ public class AddGRNSelectSupplier extends javax.swing.JDialog {
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
+        jScrollPane1.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+                jScrollPane1AncestorMoved(evt);
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        jScrollPane1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane1MouseClicked(evt);
+            }
+        });
+
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
-                "ID", "Supplier"
+                "ID", "First Name", "Last Name", "Email", "Address", "Mobile"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setResizable(false);
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(10);
+            jTable1.getColumnModel().getColumn(1).setResizable(false);
+            jTable1.getColumnModel().getColumn(2).setResizable(false);
+            jTable1.getColumnModel().getColumn(3).setResizable(false);
+            jTable1.getColumnModel().getColumn(4).setResizable(false);
+            jTable1.getColumnModel().getColumn(5).setResizable(false);
+        }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -158,6 +232,68 @@ public class AddGRNSelectSupplier extends javax.swing.JDialog {
         // Add new GRN
         new AddGRN(null, true).show();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jScrollPane1AncestorMoved(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jScrollPane1AncestorMoved
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane1AncestorMoved
+
+    private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked
+
+    }//GEN-LAST:event_jScrollPane1MouseClicked
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        if (evt.getClickCount() == 2) {
+
+            int selectedRow = jTable1.getSelectedRow();
+            if (selectedRow != -1) {
+                String id = String.valueOf(jTable1.getValueAt(selectedRow, 0));
+                String fname = String.valueOf(jTable1.getValueAt(selectedRow, 1));
+                String lname = String.valueOf(jTable1.getValueAt(selectedRow, 2));
+
+                // Ensure grn is not null 
+                if (grn != null) {
+                    grn.getjTextField2().setText(fname + " " + lname);
+                    grn.getjTextField7().setText(id);
+
+                } else {
+                    System.err.println("grn is null. Cannot set text fields.");
+                }
+
+                this.dispose();
+            }
+
+        }
+    }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jTextField7KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField7KeyReleased
+        try {
+            String mobile = jTextField7.getText();
+            if (!mobile.isEmpty()) {
+                ResultSet resaultset = MySQL.exequte("SELECT * FROM `supplier` WHERE `supplier`.`mobile` LIKE '" + mobile + "%'");
+
+                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                model.setRowCount(0);
+
+                while (resaultset.next()) {
+                    Vector rowData = new Vector();
+                    rowData.add(resaultset.getString("id"));
+                    rowData.add(resaultset.getString("fname"));
+                    rowData.add(resaultset.getString("lname"));
+                    rowData.add(resaultset.getString("email"));
+                    rowData.add(resaultset.getString("address"));
+                    rowData.add(resaultset.getString("mobile"));
+
+                    model.addRow(rowData);
+                }
+            } else {
+
+                loadSupplierTable();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jTextField7KeyReleased
 
     /**
      * @param args the command line arguments

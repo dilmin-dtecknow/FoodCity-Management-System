@@ -4,11 +4,25 @@
  */
 package Gui;
 
+import static Gui.Start.logger;
+import Model.GRNAddProductBean;
+import Model.MySQL;
+import java.sql.ResultSet;
+import java.util.Vector;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Dell
  */
 public class AddGRNSelectProduct extends javax.swing.JDialog {
+
+    private AddGRN grn;
+
+    public void setGrn(AddGRN grn) {
+        this.grn = grn;
+    }
 
     /**
      * Creates new form AddGRNSelectProduct
@@ -16,6 +30,34 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
     public AddGRNSelectProduct(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        loadProductTable();
+    }
+
+    public void loadProductTable() {
+
+        try {
+            ResultSet resaultset = MySQL.exequte("SELECT * FROM `product` "
+                    + "INNER JOIN `catagory` ON `product`.`catagory_id`=`catagory`.`id` "
+                    + "INNER JOIN `brand` ON `product`.`brand_id`=`brand`.`id`");
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+
+            while (resaultset.next()) {
+                Vector rowData = new Vector();
+                rowData.add(resaultset.getString("product.id"));
+                rowData.add(resaultset.getString("product.name"));
+                rowData.add(resaultset.getString("brand.id"));
+                rowData.add(resaultset.getString("brand.name"));
+                rowData.add(resaultset.getString("catagory.id"));
+                rowData.add(resaultset.getString("catagory.name"));
+
+                model.addRow(rowData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -31,6 +73,7 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
         jPanel6 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
         jTextField7 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -48,6 +91,16 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel10.setText("Select Products ");
 
+        jButton2.setBackground(new java.awt.Color(0, 255, 255));
+        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Refresh");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -57,23 +110,32 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel10)
-                .addContainerGap(312, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 219, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addGap(19, 19, 19))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2))
                 .addContainerGap(9, Short.MAX_VALUE))
         );
 
         jTextField7.setBorder(null);
+        jTextField7.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField7KeyReleased(evt);
+            }
+        });
 
         jButton1.setBackground(new java.awt.Color(16, 47, 129));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Select ");
+        jButton1.setText("Register New");
         jButton1.setBorder(null);
         jButton1.setPreferredSize(new java.awt.Dimension(117, 24));
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -112,18 +174,42 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
+        jScrollPane1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane1MouseClicked(evt);
+            }
+        });
+
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "ID", "Product  Name ", "Brand "
+                "ID", "Product  Name ", "Brand ID", "Brand Name", "Category ID", "Category Name"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, true
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setResizable(false);
+            jTable1.getColumnModel().getColumn(1).setResizable(false);
+            jTable1.getColumnModel().getColumn(2).setResizable(false);
+            jTable1.getColumnModel().getColumn(3).setResizable(false);
+            jTable1.getColumnModel().getColumn(4).setResizable(false);
+            jTable1.getColumnModel().getColumn(5).setResizable(false);
+        }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -153,8 +239,83 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // Add new GRN
-        new AddGRN(null, true).show();
+       // new AddGRN(null, true).show();
+       new RegisterProduct(null, true).show();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked
+        
+    }//GEN-LAST:event_jScrollPane1MouseClicked
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        if (evt.getClickCount() == 2) {
+
+            if (evt.getClickCount() == 2) {
+                int selectedRow = jTable1.getSelectedRow();
+                if (selectedRow != -1) {
+                    String id = String.valueOf(jTable1.getValueAt(selectedRow, 0));
+                    String productName = String.valueOf(jTable1.getValueAt(selectedRow, 1));
+                    String brandId = String.valueOf(jTable1.getValueAt(selectedRow, 2));
+                    String brandName = String.valueOf(jTable1.getValueAt(selectedRow, 3));
+                    String categoryId = String.valueOf(jTable1.getValueAt(selectedRow, 4));
+                    String categoryName = String.valueOf(jTable1.getValueAt(selectedRow, 5));
+
+                    // Ensure grn is not null 
+                    if (grn != null) {
+                        grn.getjTextField4().setText(productName);
+                        grn.getjTextField3().setText(id);
+                        grn.getjTextField5().setText(brandName);
+                        grn.getjTextField9().setText(categoryName);
+                        grn.bId = brandId;
+                        grn.cId = categoryId;
+                    } else {
+                        System.err.println("grn is null. Cannot set text fields.");
+                    }
+
+                    this.dispose();
+                }
+            }
+
+        }
+    }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jTextField7KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField7KeyReleased
+        try {
+            String pid = jTextField7.getText();
+            if (!pid.isEmpty()) {
+                ResultSet resaultset = MySQL.exequte("SELECT * FROM `product` "
+                        + "INNER JOIN `catagory` ON `product`.`catagory_id`=`catagory`.`id` "
+                        + "INNER JOIN `brand` ON `product`.`brand_id`=`brand`.`id` WHERE `product`.`id`='" + pid + "'");
+
+                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                model.setRowCount(0);
+
+                while (resaultset.next()) {
+                    Vector rowData = new Vector();
+                    rowData.add(resaultset.getString("product.id"));
+                    rowData.add(resaultset.getString("product.name"));
+                    rowData.add(resaultset.getString("brand.id"));
+                    rowData.add(resaultset.getString("brand.name"));
+                    rowData.add(resaultset.getString("catagory.id"));
+                    rowData.add(resaultset.getString("catagory.name"));
+
+                    model.addRow(rowData);
+                }
+            }else{
+                
+                loadProductTable();
+            }
+
+        } catch (Exception e) {
+            logger.warning(e.toString()); 
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jTextField7KeyReleased
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        loadProductTable();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -200,6 +361,7 @@ public class AddGRNSelectProduct extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;

@@ -4,7 +4,19 @@
  */
 package Gui;
 
+import static Gui.Start.logger;
+import Model.MySQL;
 import com.formdev.flatlaf.FlatLightLaf;
+import java.io.InputStream;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Vector;
+import javax.swing.table.DefaultTableModel;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRTableModelDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -17,6 +29,58 @@ public class ManageSupplier extends javax.swing.JPanel {
      */
     public ManageSupplier() {
         initComponents();
+        loadSuppliers("SELECT * FROM `supplier`");
+    }
+
+    public void loadSuppliers(String query) {
+
+        try {
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+
+            ResultSet suppliersResultSet = MySQL.exequte(query);
+
+            while (suppliersResultSet.next()) {
+                Vector supplierVector = new Vector();
+
+                supplierVector.add(suppliersResultSet.getString("id"));
+                supplierVector.add(suppliersResultSet.getString("fname"));
+                supplierVector.add(suppliersResultSet.getString("lname"));
+                supplierVector.add(suppliersResultSet.getString("mobile"));
+                supplierVector.add(suppliersResultSet.getString("email"));
+                supplierVector.add(suppliersResultSet.getString("address"));
+
+                model.addRow(supplierVector);
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+            logger.warning(e.toString());
+        }
+    }
+
+    private void printReport() {
+
+        try {
+            HashMap<String, Object> parameters = new HashMap<>();
+            //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            parameters.put("Parameter1", jTextField4.getText());
+
+            InputStream reportStream = getClass().getResourceAsStream("/Reports/SupplierReport.jasper");
+            if (reportStream == null) {
+                throw new RuntimeException("Report file not found in JAR");
+            }
+            //String reportPath = getClass().getResource("/Reports/SupplierReport.jasper").getPath();
+            //reportPath = java.net.URLDecoder.decode(reportPath, "UTF-8");
+            JRDataSource dataSource = new JRTableModelDataSource(jTable1.getModel());
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource);
+            JasperViewer.viewReport(jasperPrint, false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -55,6 +119,7 @@ public class ManageSupplier extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -267,6 +332,11 @@ public class ManageSupplier extends javax.swing.JPanel {
         jTextField4.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         jTextField4.setBorder(null);
         jTextField4.setSelectionStart(10);
+        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField4KeyReleased(evt);
+            }
+        });
 
         jButton1.setBackground(new java.awt.Color(16, 47, 129));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -285,6 +355,16 @@ public class ManageSupplier extends javax.swing.JPanel {
             }
         });
 
+        jButton5.setBackground(new java.awt.Color(51, 51, 255));
+        jButton5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setText("Get Report");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -294,6 +374,8 @@ public class ManageSupplier extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 647, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -301,10 +383,12 @@ public class ManageSupplier extends javax.swing.JPanel {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(9, 9, 9)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 9, Short.MAX_VALUE))
         );
 
@@ -312,17 +396,17 @@ public class ManageSupplier extends javax.swing.JPanel {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Supplier ID", "Supplier Name ", "Mobile", "Email", "Address "
+                "Supplier ID", "First Name ", "Last Name", "Mobile", "Email", "Address "
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -342,6 +426,7 @@ public class ManageSupplier extends javax.swing.JPanel {
             jTable1.getColumnModel().getColumn(2).setResizable(false);
             jTable1.getColumnModel().getColumn(3).setResizable(false);
             jTable1.getColumnModel().getColumn(4).setResizable(false);
+            jTable1.getColumnModel().getColumn(5).setResizable(false);
         }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -357,7 +442,7 @@ public class ManageSupplier extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 749, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addGap(0, 3, Short.MAX_VALUE))
         );
 
         add(jPanel2, java.awt.BorderLayout.CENTER);
@@ -381,16 +466,29 @@ public class ManageSupplier extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // Register supplier a jdialog panel 
-        new RegisterSupplier(null, true).show();
+        new RegisterSupplier(null, true, this).show();
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         // Selected row 
         if (evt.getClickCount() == 2) {
-            new UpdateSupplier(null, true).show();
+            int row = jTable1.getSelectedRow();
+            String supplierId = jTable1.getValueAt(row, 0).toString();
+            new UpdateSupplier(null, true, supplierId, this).show();
         }
     }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
+        String mobile = jTextField4.getText();
+
+        loadSuppliers("SELECT * FROM `supplier` WHERE `mobile` LIKE '" + mobile + "%'");
+    }//GEN-LAST:event_jTextField4KeyReleased
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        printReport();
+    }//GEN-LAST:event_jButton5ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -398,6 +496,7 @@ public class ManageSupplier extends javax.swing.JPanel {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;

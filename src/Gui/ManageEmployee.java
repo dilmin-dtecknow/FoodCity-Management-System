@@ -4,11 +4,23 @@
  */
 package Gui;
 
+import Model.EmployeeUpdateItemBean;
+import Model.MySQL;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
+import java.io.InputStream;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRTableModelDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -21,6 +33,77 @@ public class ManageEmployee extends javax.swing.JPanel {
      */
     public ManageEmployee() {
         initComponents();
+        loadTable();
+    }
+
+    public void loadTable() {
+        try {
+            String query = "SELECT * FROM `employee` "
+                    + "INNER JOIN `gender` ON `employee`.`gender_id`=`gender`.`id` "
+                    + "INNER JOIN `employee_type` ON `employee`.`employee_type_id`=`employee_type`.`id` "
+                    + "INNER JOIN `status` ON `employee`.`status_id`=`status`.`id`";
+
+//            if (query.contains("WHERE")) {
+//                query += "AND ";
+//            } else {
+//                query += "WHERE ";
+//            }
+            //grnId search
+//             grnId = "";
+            if (!jTextField4.getText().isEmpty()) {
+                // System.out.println("ok");
+                String pid = jTextField4.getText();
+                query += "WHERE `employee`.`id` LIKE '" + pid + "%'";
+            }
+
+            ResultSet resaultset = MySQL.exequte(query);
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+
+            while (resaultset.next()) {
+                Vector rowData = new Vector();
+                rowData.add(resaultset.getString("employee.id"));
+                rowData.add(resaultset.getString("employee.fname"));
+                rowData.add(resaultset.getString("employee.lname"));
+                rowData.add(resaultset.getString("username"));
+                rowData.add(resaultset.getString("nic"));
+                rowData.add(resaultset.getString("mobile"));
+                rowData.add(resaultset.getString("date_registered"));
+                rowData.add(resaultset.getString("status.status"));
+                rowData.add(resaultset.getString("gender.name"));
+                rowData.add(resaultset.getString("employee_type.name"));
+
+                model.addRow(rowData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void printReport() {
+
+        try {
+            HashMap<String, Object> parameters = new HashMap<>();
+            //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            parameters.put("Parameter1", jTextField4.getText());
+           
+            InputStream reportStream = getClass().getResourceAsStream("/Reports/EmployeeReport.jasper");
+            if (reportStream == null) {
+                throw new RuntimeException("Report file not found in JAR");
+            }
+
+            //String reportPath = getClass().getResource("/Reports/EmployeeReport.jasper").getPath();
+            //reportPath = java.net.URLDecoder.decode(reportPath, "UTF-8");
+            JRDataSource dataSource = new JRTableModelDataSource(jTable1.getModel());
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource);
+            JasperViewer.viewReport(jasperPrint, false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -41,6 +124,7 @@ public class ManageEmployee extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -78,6 +162,11 @@ public class ManageEmployee extends javax.swing.JPanel {
         jTextField4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jTextField4.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextField4.setBorder(null);
+        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField4KeyReleased(evt);
+            }
+        });
 
         jButton1.setBackground(new java.awt.Color(16, 47, 129));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -96,6 +185,23 @@ public class ManageEmployee extends javax.swing.JPanel {
             }
         });
 
+        jButton2.setBackground(new java.awt.Color(16, 47, 129));
+        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Get Report");
+        jButton2.setBorder(null);
+        jButton2.setPreferredSize(new java.awt.Dimension(117, 24));
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -105,6 +211,8 @@ public class ManageEmployee extends javax.swing.JPanel {
                 .addGap(6, 6, 6)
                 .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 647, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -112,18 +220,25 @@ public class ManageEmployee extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(9, 9, 9))
         );
 
         add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
+        jScrollPane1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane1MouseClicked(evt);
+            }
+        });
+
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"001", "Dilmin", "Pakaya", "pakaya123", "12345689v", "123456789", "021649", "1", "Gay", "1"}
+
             },
             new String [] {
                 "Employee ID", "First Name ", "Last Name ", "Username ", "NIC", "mobile", "Register Date ", "Status ", "Gender ", "Employee Type"
@@ -169,7 +284,7 @@ public class ManageEmployee extends javax.swing.JPanel {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 735, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 729, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -188,13 +303,68 @@ public class ManageEmployee extends javax.swing.JPanel {
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         // TODO add your handling code here:
         if (evt.getClickCount() == 2) {
-            new UpdateEmployee(null, true).show();
+            int selectedRow = jTable1.getSelectedRow();
+            if (selectedRow != -1) {
+                String eId = String.valueOf(jTable1.getValueAt(selectedRow, 0));
+                String fName = String.valueOf(jTable1.getValueAt(selectedRow, 1));
+                String lName = String.valueOf(jTable1.getValueAt(selectedRow, 2));
+                String userName = String.valueOf(jTable1.getValueAt(selectedRow, 3));
+                String nic = String.valueOf(jTable1.getValueAt(selectedRow, 4));
+                String mobile = String.valueOf(jTable1.getValueAt(selectedRow, 5));
+                String status = String.valueOf(jTable1.getValueAt(selectedRow, 7));
+                String gender = String.valueOf(jTable1.getValueAt(selectedRow, 8));
+                String type = String.valueOf(jTable1.getValueAt(selectedRow, 9));
+
+//                System.out.println(eId);
+//                System.out.println(fName);
+//                System.out.println(lName);
+//                System.out.println(userName);
+//                System.out.println(nic);
+//                System.out.println(mobile);
+//                System.out.println(status);
+//                System.out.println(gender);
+//                System.out.println(type);
+
+//                EmployeeUpdateItemBean itemBean = new EmployeeUpdateItemBean();
+//                itemBean.setEmployeeId(eId);
+//                itemBean.setFname(fName);
+//                itemBean.setLname(lName);
+//                itemBean.setUsername(userName);
+//                itemBean.setNic(nic);
+//                itemBean.setMobile(mobile);
+//                itemBean.setStatus(status);
+//                itemBean.setGender(gender);
+//                itemBean.setType(type);
+                new UpdateEmployee(null, true, eId, fName, lName, userName, nic, mobile, status, gender, type).show();
+                //updateEmp.setVisible(true);
+                //updateEmp.setUpdateItem(itemBean);
+            }
+
         }
     }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jScrollPane1MouseClicked
+
+    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
+        // TODO add your handling code here:
+        loadTable();
+    }//GEN-LAST:event_jTextField4KeyReleased
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2MouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        printReport();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;

@@ -4,11 +4,23 @@
  */
 package Gui;
 
+import Model.MySQL;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Vector;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dell
  */
 public class RegisterEmpolyee extends javax.swing.JDialog {
+
+    private static HashMap<String, String> employeeTypeMap = new HashMap<>();
+    private static HashMap<String, String> employeeGenderTypeMap = new HashMap<>();
 
     /**
      * Creates new form NewJDialog
@@ -16,6 +28,61 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
     public RegisterEmpolyee(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        loadGender();
+        loadEType();
+    }
+
+    private void loadGender() {
+
+        try {
+            ResultSet resultSet = MySQL.exequte("SELECT * FROM `gender`");
+            Vector<String> vector = new Vector<>();
+            vector.add("Select");
+
+            while (resultSet.next()) {
+                vector.add(resultSet.getString("name"));//same
+
+                employeeGenderTypeMap.put(resultSet.getString("name"), resultSet.getString("id"));//want to get vector value like Mapkey(resultSet.getString("name"))
+            }
+
+            DefaultComboBoxModel model = new DefaultComboBoxModel(vector);
+            jComboBox2.setModel(model);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void loadEType() {
+
+        try {
+            ResultSet resultSet = MySQL.exequte("SELECT * FROM `employee_type`");
+            Vector<String> vector = new Vector<>();
+            vector.add("Select");
+
+            while (resultSet.next()) {
+                vector.add(resultSet.getString("name"));//same
+
+                employeeTypeMap.put(resultSet.getString("name"), resultSet.getString("id"));
+            }
+
+            DefaultComboBoxModel model = new DefaultComboBoxModel(vector);
+            jComboBox1.setModel(model);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void reset() {
+        jTextField1.setText("");
+        jTextField2.setText("");
+        jTextField3.setText("");
+        jTextField10.setText("");
+        jComboBox2.setSelectedIndex(0);
+        jTextField6.setText("");
+        jPasswordField1.setText("");
+        jComboBox1.setSelectedIndex(0);
     }
 
     /**
@@ -40,10 +107,7 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jTextField6 = new javax.swing.JTextField();
-        jTextField8 = new javax.swing.JTextField();
-        jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
         jTextField10 = new javax.swing.JTextField();
@@ -51,6 +115,7 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jComboBox2 = new javax.swing.JComboBox<>();
+        jPasswordField1 = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -110,28 +175,13 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setText("Mobile ");
 
-        jTextField8.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField8ActionPerformed(evt);
-            }
-        });
-
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel11.setText("Username");
-
         jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel12.setText("Password");
-
-        jTextField9.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField9ActionPerformed(evt);
-            }
-        });
 
         jButton4.setBackground(new java.awt.Color(16, 47, 129));
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Update ");
+        jButton4.setText("Register");
         jButton4.setBorder(null);
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -152,6 +202,8 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", " " }));
 
+        jPasswordField1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -159,34 +211,36 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(43, 43, 43)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel15)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(30, 30, 30)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5)))
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel11)
-                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12)
-                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9))
-                        .addGap(30, 30, 30)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel14)
-                            .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel13)
-                            .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(58, Short.MAX_VALUE))
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel15)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(30, 30, 30)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5)))
+                            .addComponent(jLabel12)
+                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel9))
+                                .addGap(30, 30, 30)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel14)
+                                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel13)
+                                    .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(58, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,15 +277,11 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
                 .addComponent(jLabel15)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(33, 33, 33)
                 .addComponent(jLabel12)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
+                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(95, 95, 95)
                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(48, Short.MAX_VALUE))
         );
@@ -242,16 +292,64 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField8ActionPerformed
-
-    private void jTextField9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField9ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField9ActionPerformed
-
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        // register
+        try {
+            String firstname = jTextField1.getText();
+            String lastname = jTextField2.getText();
+            String username = jTextField3.getText();
+            String nic = jTextField10.getText();
+            String gender = String.valueOf(jComboBox2.getSelectedItem());
+            String mobile = jTextField6.getText();
+            String password = String.valueOf(jPasswordField1.getPassword());
+            String type = String.valueOf(jComboBox1.getSelectedItem());
+
+            if (firstname.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Enter  Firstname", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (lastname.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Enter  lastname", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (username.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Enter  Username", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (nic.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Enter  NIC", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (mobile.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Enter  Mobile", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (!mobile.matches("^07[01245678]{1}[0-9]{7}$")) {
+                JOptionPane.showMessageDialog(this, "Invalide Mobile Number", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (gender.equals("Select")) {
+                JOptionPane.showMessageDialog(this, "Please Select Your Gender", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Enter Your Password", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
+                JOptionPane.showMessageDialog(this, "Password must contains minimum 8 characters, at least one uppercase letter, one lowercase letter,one number and 1 special character", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else if (type.equals("Select")) {
+                JOptionPane.showMessageDialog(this, "Please Select Your Type", "Warning", JOptionPane.WARNING_MESSAGE);
+            } else {
+
+                Date date = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                try {
+
+                    ResultSet resultset = MySQL.exequte("SELECT * FROM `employee` WHERE `mobile`='" + mobile + "' OR `nic`='" + nic + "'");
+
+                    if (resultset.next()) {
+                        JOptionPane.showMessageDialog(this, "Mobile and NIC allready exsist", "Warning", JOptionPane.WARNING_MESSAGE);
+                    } else {
+
+                        MySQL.exequte("INSERT INTO `employee`(`username`,`password`,`fname`,`lname`,`nic`,`mobile`,`date_registered`,`gender_id`,`employee_type_id`,`status_id`) "
+                                + "VALUES('" + username + "','" + password + "','" + firstname + "','" + lastname + "','" + nic + "','" + mobile + "','" + sdf.format(date) + "','" + employeeGenderTypeMap.get(gender) + "','" + employeeTypeMap.get(type) + "','1')");
+//                        loadEmployeeTable();
+                        reset();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
@@ -304,7 +402,6 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
@@ -317,12 +414,11 @@ public class RegisterEmpolyee extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
     // End of variables declaration//GEN-END:variables
 }

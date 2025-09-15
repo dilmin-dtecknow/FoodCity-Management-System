@@ -4,18 +4,25 @@
  */
 package Gui;
 
+import Model.MySQL;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dell
  */
 public class RegisterSupplier extends javax.swing.JDialog {
 
+    private ManageSupplier manageSupplier;
+
     /**
      * Creates new form RegisterSuppliers
      */
-    public RegisterSupplier(java.awt.Frame parent, boolean modal) {
+    public RegisterSupplier(java.awt.Frame parent, boolean modal, ManageSupplier manageSupplier) {
         super(parent, modal);
         initComponents();
+        this.manageSupplier = manageSupplier;
     }
 
     /**
@@ -47,16 +54,16 @@ public class RegisterSupplier extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel4.setText("Supplier ID ");
+        jLabel4.setText("First Name");
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel5.setText("Supplier Name ");
+        jLabel5.setText("Last Name");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel6.setText("Email");
+        jLabel6.setText("Mobile");
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel9.setText("Mobile ");
+        jLabel9.setText("Email");
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel8.setText("Address");
@@ -175,7 +182,50 @@ public class RegisterSupplier extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        String fname = jTextField1.getText();
+        String lname = jTextField2.getText();
+        String mobile = jTextField3.getText();
+        String email = jTextField6.getText();
+        String address = jTextField5.getText();
+
+        if (fname.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter first name", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (lname.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter last name", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (mobile.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter mobile number", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (!mobile.matches("^07[01245678]{1}[0-9]{7}$")) {
+            JOptionPane.showMessageDialog(this, "Invalid mobile number", "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter email", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (!email.matches("^(?=.{1,64}@)[A-Za-z0-9\\+_-]+(\\.[A-Za-z0-9\\+_-]+)*@"
+                + "[^-][A-Za-z0-9\\+-]+(\\.[A-Za-z0-9\\+-]+)*(\\.[A-Za-z]{2,})$")) {
+            JOptionPane.showMessageDialog(this, "Invalid Email Address", "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (address.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter address", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else {
+            try {
+                ResultSet resultSet = MySQL.exequte("SELECT * FROM `supplier` WHERE "
+                        + "`mobile`='" + mobile + "' OR `email` = '" + email + "'");
+
+                if (resultSet.next()) {
+                    JOptionPane.showMessageDialog(this, "Supplier has already registered", "Warning", JOptionPane.WARNING_MESSAGE);
+                    this.dispose();
+                    
+                } else {
+                    MySQL.exequte("INSERT INTO `supplier` (`fname`,`lname`,`email`,`address`,`mobile`)"
+                            + "VALUES ('" + fname + "','" + lname + "','" + email + "','" + address + "','" + mobile + "')");
+
+                    JOptionPane.showMessageDialog(this, "Supplier registered", "Message", JOptionPane.INFORMATION_MESSAGE);
+                    this.dispose();
+                    manageSupplier.loadSuppliers("SELECT * FROM `supplier`");
+                }
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+                
+            }
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
@@ -209,14 +259,14 @@ public class RegisterSupplier extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                RegisterSupplier dialog = new RegisterSupplier(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+//                RegisterSupplier dialog = new RegisterSupplier(new javax.swing.JFrame(), true);
+//                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+//                    @Override
+//                    public void windowClosing(java.awt.event.WindowEvent e) {
+//                        System.exit(0);
+//                    }
+//                });
+//                dialog.setVisible(true);
             }
         });
     }

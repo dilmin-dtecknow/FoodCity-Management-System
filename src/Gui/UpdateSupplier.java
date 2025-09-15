@@ -4,18 +4,47 @@
  */
 package Gui;
 
+import Model.MySQL;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dell
  */
 public class UpdateSupplier extends javax.swing.JDialog {
 
+    private ManageSupplier manageSupplier;
+    private String supplierId;
+
     /**
      * Creates new form RegisterSuppliers
      */
-    public UpdateSupplier(java.awt.Frame parent, boolean modal) {
+    public UpdateSupplier(java.awt.Frame parent, boolean modal, String id, ManageSupplier manageSupplier) {
         super(parent, modal);
         initComponents();
+        supplierId = id;
+        this.manageSupplier = manageSupplier;
+        loadSupplierDetails();
+    }
+
+    public void loadSupplierDetails() {
+        try {
+            ResultSet resultSet = MySQL.exequte("SELECT * FROM `supplier` WHERE `id`='" + supplierId + "'");
+
+            if (resultSet.next()) {
+                jTextField1.setText(supplierId);
+                jTextField2.setText(resultSet.getString("fname"));
+                jTextField4.setText(resultSet.getString("lname"));
+                jTextField3.setText(resultSet.getString("email"));
+                jTextField6.setText(resultSet.getString("mobile"));
+                jTextField5.setText(resultSet.getString("address"));
+            } else {
+                JOptionPane.showMessageDialog(this, "Somethin went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -39,6 +68,8 @@ public class UpdateSupplier extends javax.swing.JDialog {
         jLabel8 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
@@ -49,14 +80,20 @@ public class UpdateSupplier extends javax.swing.JDialog {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel4.setText("Supplier ID ");
 
+        jTextField1.setEditable(false);
+
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel5.setText("Supplier Name ");
+
+        jTextField3.setEditable(false);
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel6.setText("Email");
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setText("Mobile ");
+
+        jTextField6.setEditable(false);
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel8.setText("Address");
@@ -71,6 +108,9 @@ public class UpdateSupplier extends javax.swing.JDialog {
                 jButton4ActionPerformed(evt);
             }
         });
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel7.setText("Last Name ");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -91,10 +131,12 @@ public class UpdateSupplier extends javax.swing.JDialog {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                             .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                             .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.LEADING))
                         .addGap(0, 156, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
@@ -109,6 +151,10 @@ public class UpdateSupplier extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(29, 29, 29)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -122,7 +168,7 @@ public class UpdateSupplier extends javax.swing.JDialog {
                 .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52)
                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(57, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel2, java.awt.BorderLayout.CENTER);
@@ -175,7 +221,31 @@ public class UpdateSupplier extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        String fname = jTextField2.getText();
+        String lname = jTextField4.getText();
+        String address = jTextField5.getText();
+
+        if (fname.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter first name", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (lname.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter last name", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (address.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter adress", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else {
+            try {
+                MySQL.exequte("UPDATE `supplier` SET "
+                        + "`fname`='" + fname + "', "
+                        + "`lname`='" + lname + "', "
+                        + "`address`='" + address + "' WHERE `id` = '" + supplierId + "'");
+
+                JOptionPane.showMessageDialog(this, "Supplier details updated", "Message", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+                manageSupplier.loadSuppliers("SELECT * FROM `supplier`");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
@@ -211,14 +281,14 @@ public class UpdateSupplier extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                UpdateSupplier dialog = new UpdateSupplier(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+//                UpdateSupplier dialog = new UpdateSupplier(new javax.swing.JFrame(), true);
+//                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+//                    @Override
+//                    public void windowClosing(java.awt.event.WindowEvent e) {
+//                        System.exit(0);
+//                    }
+//                });
+//                dialog.setVisible(true);
             }
         });
     }
@@ -230,6 +300,7 @@ public class UpdateSupplier extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
@@ -238,6 +309,7 @@ public class UpdateSupplier extends javax.swing.JDialog {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     // End of variables declaration//GEN-END:variables

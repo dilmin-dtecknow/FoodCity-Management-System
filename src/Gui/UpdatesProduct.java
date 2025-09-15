@@ -4,19 +4,78 @@
  */
 package Gui;
 
+import Model.MySQL;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Vector;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dell
  */
 public class UpdatesProduct extends javax.swing.JDialog {
 
+    HashMap<String, String> brandMap = new HashMap<>();
+    HashMap<String, String> categoryMap = new HashMap<>();
     /**
      * Creates new form RegisterProduct
      */
-    public UpdatesProduct(java.awt.Frame parent, boolean modal) {
+    public UpdatesProduct(java.awt.Frame parent, boolean modal, String pid, String pname, String category, String brand) {
         super(parent, modal);
         initComponents();
+        loadBrand();
+        loadCategory();
+        
+        jTextField3.setText(pid);
+        jTextField2.setText(pname);
+        jComboBox1.setSelectedItem(category);
+        jComboBox2.setSelectedItem(brand);
     }
+
+    private void loadCategory() {
+        try {
+            ResultSet resaultSet = MySQL.exequte("SELECT * FROM `catagory`");
+
+            Vector v = new Vector();
+            v.add("Select");
+
+            while (resaultSet.next()) {
+                v.add(resaultSet.getString("name"));
+                categoryMap.put(resaultSet.getString("name"), resaultSet.getString("id"));
+            }
+
+            DefaultComboBoxModel mode = new DefaultComboBoxModel(v);
+            jComboBox1.setModel(mode);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadBrand() {
+        try {
+            ResultSet resaultSet = MySQL.exequte("SELECT * FROM `brand`");
+
+            Vector v = new Vector();
+            v.add("Select");
+
+            while (resaultSet.next()) {
+                v.add(resaultSet.getString("name"));
+                 brandMap.put(resaultSet.getString("name"), resaultSet.getString("id"));
+            }
+
+            DefaultComboBoxModel mode = new DefaultComboBoxModel(v);
+            jComboBox2.setModel(mode);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -34,9 +93,9 @@ public class UpdatesProduct extends javax.swing.JDialog {
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
         jComboBox1 = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
+        jComboBox2 = new javax.swing.JComboBox<>();
         jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
@@ -62,17 +121,11 @@ public class UpdatesProduct extends javax.swing.JDialog {
         jLabel12.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
         jLabel12.setText("Brand ");
 
+        jTextField3.setEditable(false);
         jTextField3.setBorder(null);
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField3ActionPerformed(evt);
-            }
-        });
-
-        jTextField4.setBorder(null);
-        jTextField4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField4ActionPerformed(evt);
             }
         });
 
@@ -95,6 +148,8 @@ public class UpdatesProduct extends javax.swing.JDialog {
             }
         });
 
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select ", "Vegetables", "Fruits ", "Medicine ", "Sattionary ", "Beverages ", "Meat", "Canned Goods", "Dry Goods", "Cernals ", " " }));
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -105,13 +160,13 @@ public class UpdatesProduct extends javax.swing.JDialog {
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                         .addComponent(jLabel12)
                         .addComponent(jLabel11)
                         .addComponent(jLabel10)
                         .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                         .addComponent(jLabel8)
-                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -131,9 +186,9 @@ public class UpdatesProduct extends javax.swing.JDialog {
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(21, 21, 21)
                 .addComponent(jLabel12)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(43, 43, 43)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(24, Short.MAX_VALUE))
         );
@@ -195,17 +250,47 @@ public class UpdatesProduct extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
 
-    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField4ActionPerformed
-
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
 
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // Register product
-        new UpdatesProduct(null, true).show();
+        // update product
+        //new UpdatesProduct(null, true).show();
+        String id = jTextField3.getText();
+        String catagory = String.valueOf(jComboBox1.getSelectedItem());
+        String brand = String.valueOf(jComboBox2.getSelectedItem());
+        String name = jTextField2.getText();
+
+        if (id.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Id is empty", "Warning", JOptionPane.WARNING_MESSAGE);
+        }else if (catagory.equals("Select")) {
+            JOptionPane.showMessageDialog(this, "category is Empty", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (brand.equals("Select")) {
+            JOptionPane.showMessageDialog(this, "Brand is Empty", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Product Name is empty", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else {
+
+            try {
+                ResultSet resultSet = MySQL.exequte("SELECT * FROM `product` WHERE `name`='" + name + "' AND `brand_id`='" + brandMap.get(brand) + "' AND `catagory_id`='"+categoryMap.get(catagory)+"' AND `id`!='" + id + "'");
+
+                if (resultSet.next()) {
+                    JOptionPane.showMessageDialog(this, "Product all ready Updatedd", "Warning", JOptionPane.WARNING_MESSAGE);
+                } else {
+
+                    MySQL.exequte("UPDATE `product` SET `name`='" + name + "',`brand_id`='" + brandMap.get(brand) + "',`catagory_id`='"+categoryMap.get(catagory)+"' WHERE `id`='" + id + "'");
+                    JOptionPane.showMessageDialog(this, "New Product updated", "Warning", JOptionPane.WARNING_MESSAGE);
+
+                }
+                ManageProduct mp = new ManageProduct();
+                mp.loadProductTable();
+                this.dispose();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -239,7 +324,7 @@ public class UpdatesProduct extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                UpdatesProduct dialog = new UpdatesProduct(new javax.swing.JFrame(), true);
+                UpdatesProduct dialog = new UpdatesProduct(new javax.swing.JFrame(), true,null,null,null,null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -254,6 +339,7 @@ public class UpdatesProduct extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -264,6 +350,5 @@ public class UpdatesProduct extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
     // End of variables declaration//GEN-END:variables
 }
